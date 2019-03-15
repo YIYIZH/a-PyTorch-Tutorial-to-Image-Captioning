@@ -3,6 +3,8 @@ import torch.nn.functional as F
 import numpy as np
 import json
 import torchvision.transforms as transforms
+import matplotlib as mpl
+mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import skimage.transform
@@ -11,7 +13,6 @@ from scipy.misc import imread, imresize
 from PIL import Image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=3):
     """
@@ -36,12 +37,14 @@ def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=
     img = imresize(img, (256, 256))
     img = img.transpose(2, 0, 1)
     img = img / 255.
-    img = torch.FloatTensor(img).to(device)
+    #img = torch.FloatTensor(img).to(device)
+    img = torch.FloatTensor(img)
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
+
     transform = transforms.Compose([normalize])
     image = transform(img)  # (3, 256, 256)
-
+    image = torch.FloatTensor(image).to(device)
     # Encode
     image = image.unsqueeze(0)  # (1, 3, 256, 256)
     encoder_out = encoder(image)  # (1, enc_image_size, enc_image_size, encoder_dim)
@@ -159,11 +162,11 @@ def visualize_att(image_path, seq, alphas, rev_word_map, smooth=True):
     :param rev_word_map: reverse word mapping, i.e. ix2word
     :param smooth: smooth weights?
     """
+    print('inside visualize')
     image = Image.open(image_path)
     image = image.resize([14 * 24, 14 * 24], Image.LANCZOS)
 
     words = [rev_word_map[ind] for ind in seq]
-
     for t in range(len(words)):
         if t > 50:
             break
@@ -182,7 +185,9 @@ def visualize_att(image_path, seq, alphas, rev_word_map, smooth=True):
             plt.imshow(alpha, alpha=0.8)
         plt.set_cmap(cm.Greys_r)
         plt.axis('off')
+   
     plt.show()
+   
 
 
 if __name__ == '__main__':
