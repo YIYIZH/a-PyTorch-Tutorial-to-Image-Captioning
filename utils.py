@@ -43,6 +43,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
         for c in img['sentences']:
             # Update word frequency
             word_freq.update(c['tokens'])
+            # filter long sentences
             if len(c['tokens']) <= max_len:
                 captions.append(c['tokens'])
 
@@ -104,6 +105,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
 
                 # Sample captions
                 if len(imcaps[i]) < captions_per_image:
+                    # if there is not enough captions, choose randomly from them to fullfil the number
                     captions = imcaps[i] + [choice(imcaps[i]) for _ in range(captions_per_image - len(imcaps[i]))]
                 else:
                     captions = sample(imcaps[i], k=captions_per_image)
