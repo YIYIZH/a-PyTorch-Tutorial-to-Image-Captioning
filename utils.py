@@ -282,7 +282,7 @@ def accuracy(scores, targets, k):
     """
 
     batch_size = targets.size(0)
-    _, ind = scores.topk(k, 1, True, True)
-    correct = ind.eq(targets.view(-1, 1).expand_as(ind))
+    _, ind = scores.topk(k, 1, True, True) # return K th biggest sorted number, indices of each value
+    correct = ind.eq(targets.view(-1, 1).expand_as(ind)) # -1 means not sure the number of rows, 1 column
     correct_total = correct.view(-1).float().sum()  # 0D tensor
     return correct_total.item() * (100.0 / batch_size)

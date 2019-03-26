@@ -35,7 +35,7 @@ alpha_c = 1.  # regularization parameter for 'doubly stochastic attention', as i
 best_bleu4 = 0.  # BLEU-4 score right now
 print_freq = 100  # print training/validation stats every __ batches
 fine_tune_encoder = False  # fine-tune encoder?
-checkpoint = './checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar'  # path to checkpoint, None if none
+checkpoint = None  # path to checkpoint, None if none
 
 
 def main():
@@ -161,25 +161,22 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
     # Batches
     for i, (imgs, caps, caplens) in enumerate(train_loader):
         data_time.update(time.time() - start)
-
         # Move to GPU, if available
-        imgs = imgs.to(device)
-        caps = caps.to(device)
+        imgs = imgs.to(device) # (32, 3, 256, 256)
+        caps = caps.to(device) # (32, 52)
         caplens = caplens.to(device)
-
         # Forward prop.
-        imgs = encoder(imgs)
-        scores, caps_sorted, decode_lengths, alphas, sort_ind = decoder(imgs, caps, caplens)
-
+        imgs = encoder(imgs) # (32, 14, 14, 2048)
+        scores, caps_sorted, decode_lengths, alphas, sort_ind = decoder(imgs, caps, caplens) # (32, *, 9490) (32, 52) *表示max length of the captions in the batch
         # Since we decoded starting with <start>, the targets are all words after <start>, up to <end>
-        targets = caps_sorted[:, 1:]
-
+        targets = caps_sorted[:, 1:] # (32, 51)
+      
         # Remove timesteps that we didn't decode at, or are pads
         # pack_padded_sequence is an easy trick to do this
-        scores, _ = pack_padded_sequence(scores, decode_lengths, batch_first=True)
-        targets, _ = pack_padded_sequence(targets, decode_lengths, batch_first=True)
-
+        scores, _ = pack_padded_sequence(scores, decode_lengths, batch_first=True) # (*, 9490) *表示没有pads的captions总长度
+        targets, _ = pack_padded_sequence(targets, decode_lengths, batch_first=True) # (*)
         # Calculate loss
+        print(scores, targets)
         loss = criterion(scores, targets)
 
         # Add doubly stochastic attention regularization
