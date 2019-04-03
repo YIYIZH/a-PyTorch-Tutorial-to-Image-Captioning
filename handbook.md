@@ -1,17 +1,17 @@
 This is a **Handbook for users to run in Qianjiangyuan**.
 
-# Module requirement:  
-*sudo pip install nltk
+### Module requirement:  
+*sudo pip install nltk*
 
-# pre-process for the input images and captions 
-*python create_input_files.py
+### pre-process for the input images and captions 
+*python create_input_files.py*
 
-# Do the training 
-*python train.py
+### Do the training 
+*python train.py*
 
-# Run validation
-*python eval.py
+### Run validation
+*python eval.py*
 
-# Run model
-*python caption.py
+### Run model
+*python caption.py*
 
