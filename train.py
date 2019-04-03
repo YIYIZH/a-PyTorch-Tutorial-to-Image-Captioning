@@ -11,7 +11,7 @@ from utils import *
 from nltk.translate.bleu_score import corpus_bleu
 
 # Data parameters
-data_folder = '/data1/public/coco/output/'  # folder with data files saved by create_input_files.py
+data_folder = '/dlwsdata2/public/coco/output/'  # folder with data files saved by create_input_files.py
 data_name = 'coco_5_cap_per_img_5_min_word_freq'  # base name shared by data files
 
 # Model parameters
@@ -176,7 +176,6 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         scores, _ = pack_padded_sequence(scores, decode_lengths, batch_first=True) # (*, 9490) *表示没有pads的captions总长度
         targets, _ = pack_padded_sequence(targets, decode_lengths, batch_first=True) # (*)
         # Calculate loss
-        print(scores, targets)
         loss = criterion(scores, targets)
 
         # Add doubly stochastic attention regularization
